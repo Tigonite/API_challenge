@@ -12,3 +12,33 @@ test.describe("Tsets for APIchallenge", () => {
 
         expect(response.status()).toBe(201);
     });
+
+    test("02 GET /challenges (200)", async ( { request } ) => {
+        let response = await request.get(`${URL}/challenges`, {
+            headers: {
+                "x-challenger": token
+            }},
+        );
+        let body = await response.json();
+        let headers = response.headers();
+
+        expect(response.status()).toBe(200);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(body.challenges.length).toBe(59)
+
+    });
+
+    test("03 GET /todos (200)", async ( { request } ) => {
+        let response = await request.get(`${URL}/todos`, {
+            headers: {
+                "x-challenger": token
+            }},
+        );
+        let body = await response.json();
+        let headers = response.headers();
+
+        expect(response.status()).toBe(200);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(body.todos.length).toBe(10)
+    });
+})
