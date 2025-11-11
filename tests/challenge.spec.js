@@ -41,4 +41,15 @@ test.describe("Tsets for APIchallenge", () => {
         expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
         expect(body.todos.length).toBe(10)
     });
+
+    test("04 GET /todos (200)", async ( { request } ) => {
+        let response = await request.get(`${URL}/todo`, {
+            headers: {
+                "x-challenger": token
+            }},
+        );
+
+        expect(response.status()).toBe(404);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+    });
 })
