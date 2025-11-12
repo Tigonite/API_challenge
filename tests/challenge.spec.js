@@ -84,7 +84,7 @@ test.describe("Tsets for APIchallenge", () => {
     });
 
     test("07 GET /todos (200) ?filter", async ( { request } ) => {
-        let response = await request.get(`${URL}/todos/`, {
+        let response = await request.get(`${URL}/todos?doneStatus=false`, {
             headers: {
                 "x-challenger": token
             }},
@@ -94,6 +94,6 @@ test.describe("Tsets for APIchallenge", () => {
 
         expect(response.status()).toBe(200);
         expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
-        console.log(body.todos);
+        expect(body.todos[0].doneStatus).toBe(false);
     });
 })
