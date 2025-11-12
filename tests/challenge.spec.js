@@ -148,4 +148,25 @@ test.describe("Tsets for APIchallenge", () => {
         expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
         expect(body.errorMessages[0]).toContain("Failed Validation: doneStatus should be BOOLEAN");
     });
+
+    test("11 POST /todos (400) title too long", async ( { request } ) => {
+        let response = await request.post(`${URL}/todos`, {
+            headers: {
+                "x-challenger": token}, 
+                data: {
+                    doneStatus: false,
+                    title: 'one two three and so on and so on and so on and so on',
+                    description: 'just bla bla bla'
+                }
+            },
+        );
+        let body = await response.json();
+        let headers = response.headers();
+
+        expect(response.status()).toBe(400);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(body.errorMessages[0]).toContain("Failed Validation: Maximum allowable length exceeded for title - maximum allowed is 50");
+        console.log(body);
+    });
+
 })
