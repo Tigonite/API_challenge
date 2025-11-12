@@ -108,4 +108,27 @@ test.describe("Tsets for APIchallenge", () => {
         expect(response.status()).toBe(200);
         expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
     });
+
+    test("09 POST /todos (201)", async ( { request } ) => {
+        let response = await request.post(`${URL}/todos`, {
+            headers: {
+                "x-challenger": token}, 
+                data: {
+                    doneStatus: true,
+                    title: 'one two three',
+                    description: 'just bla bla bla'
+                }
+            },
+        );
+        let body = await response.json();
+        let headers = response.headers();
+
+        expect(response.status()).toBe(201);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(body.doneStatus).toEqual(true);
+        expect(body.title).toBe('one two three');
+        expect(body.description).toBe('just bla bla bla');
+    });
+
+    
 })
