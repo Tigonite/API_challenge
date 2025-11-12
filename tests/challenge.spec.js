@@ -227,6 +227,27 @@ test.describe("Tsets for APIchallenge", () => {
         expect(body.errorMessages[0]).toContain("Error: Request body too large, max allowed is 5000 bytes");
     });
 
+    test("15 POST /todos (400) extra", async ( { request } ) => {
+        let response = await request.post(`${URL}/todos`, {
+            headers: {
+                "x-challenger": token}, 
+                data: {
+                    doneStatus: false,
+                    title: 'one two three and so on and so on and so on and so',
+                    description: 'bla',
+                    someField: "foobar",
+                }
+            },
+        );
+        let body = await response.json();
+        let headers = response.headers();
+
+        expect(response.status()).toBe(400);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        //expect(body.errorMessages[0]).toContain("Error: Request body too large, max allowed is 5000 bytes");
+        console.log(body);
+    });
+
 
 
 
