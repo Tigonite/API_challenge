@@ -130,5 +130,22 @@ test.describe("Tsets for APIchallenge", () => {
         expect(body.description).toBe('just bla bla bla');
     });
 
-    
+    test("10 POST /todos (400) doneStatus", async ( { request } ) => {
+        let response = await request.post(`${URL}/todos`, {
+            headers: {
+                "x-challenger": token}, 
+                data: {
+                    doneStatus: "true",
+                    title: 'one two three',
+                    description: 'just bla bla bla'
+                }
+            },
+        );
+        let body = await response.json();
+        let headers = response.headers();
+
+        expect(response.status()).toBe(400);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(body.errorMessages[0]).toContain("Failed Validation: doneStatus should be BOOLEAN");
+    });
 })
