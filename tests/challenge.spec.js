@@ -96,4 +96,16 @@ test.describe("Tsets for APIchallenge", () => {
         expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
         expect(body.todos[0].doneStatus).toBe(false);
     });
+
+    test("08 HEAD /todos (200)", async ( { request } ) => {
+        let response = await request.head(`${URL}/todos`, {
+            headers: {
+                "x-challenger": token
+            }},
+        );
+        let headers = response.headers();
+
+        expect(response.status()).toBe(200);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+    });
 })
