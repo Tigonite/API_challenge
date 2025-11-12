@@ -235,7 +235,7 @@ test.describe("Tsets for APIchallenge", () => {
                     doneStatus: false,
                     title: 'one two three and so on and so on and so on and so',
                     description: 'bla',
-                    someField: "foobar",
+                    priority: "high",
                 }
             },
         );
@@ -244,8 +244,7 @@ test.describe("Tsets for APIchallenge", () => {
 
         expect(response.status()).toBe(400);
         expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
-        //expect(body.errorMessages[0]).toContain("Error: Request body too large, max allowed is 5000 bytes");
-        console.log(body);
+        expect(body.errorMessages[0]).toContain('Could not find field: priority');
     });
 
 
