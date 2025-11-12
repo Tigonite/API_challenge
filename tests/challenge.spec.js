@@ -53,7 +53,7 @@ test.describe("Tsets for APIchallenge", () => {
         expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
     });
 
-    test.only("05 GET /todos/{id} (200)", async ( { request } ) => {
+    test("05 GET /todos/{id} (200)", async ( { request } ) => {
         let todo_id = Math.floor(Math.random() * 10) + 1;
         let response = await request.get(`${URL}/todos/${todo_id}`, {
             headers: {
@@ -66,5 +66,34 @@ test.describe("Tsets for APIchallenge", () => {
         expect(response.status()).toBe(200);
         expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
         expect(body.todos.length).toBe(1);
+    });
+
+    test("06 GET /todos/{id} (404)", async ( { request } ) => {
+        let todo_id = Math.floor(Math.random() * 10) + 11;
+        let response = await request.get(`${URL}/todos/${todo_id}`, {
+            headers: {
+                "x-challenger": token
+            }},
+        );
+        let body = await response.json();
+        let headers = response.headers();
+
+        expect(response.status()).toBe(404);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(body.todos).toBe(undefined);
+    });
+
+    test("07 GET /todos (200) ?filter", async ( { request } ) => {
+        let response = await request.get(`${URL}/todos/`, {
+            headers: {
+                "x-challenger": token
+            }},
+        );
+        let body = await response.json();
+        let headers = response.headers();
+
+        expect(response.status()).toBe(200);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        console.log(body.todos);
     });
 })
