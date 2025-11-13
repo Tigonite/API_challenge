@@ -431,12 +431,28 @@ test.describe("Tsets for APIchallenge", () => {
             },
         );
 
-        let body = await response.text();
         let headers = response.headers();
 
-        //expect(response.status()).toBe(200);
+        expect(response.status()).toBe(200);
         expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
-        //expect(body.errorMessages[0]).toContain('Could not find an instance with');
+        expect(headers["content-type"]).toContain("application/xml");
+    });
+
+    test("26 GET /todos (200) JSON", async ( { request } ) => {
+        let response = await request.get(`${URL}/todos`, {
+            headers: {
+                "x-challenger": token,
+                accept: "application/json",
+            }, 
+            },
+        );
+
+        let headers = response.headers();
+        let body = response.json();
+
+        expect(response.status()).toBe(200);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(headers["content-type"]).toContain("application/json");
         console.log(body);
     });
 
