@@ -361,4 +361,26 @@ test.describe("Tsets for APIchallenge", () => {
         expect(body.errorMessages[0]).toContain('title : field is mandatory');
     });
 
+    test("22 PUT /todos/{id} no amend id (400)", async ( { request } ) => {
+        let todo_id = Math.floor(Math.random() * 10) + 1;
+        let todo_wrong_id = Math.floor(Math.random() * 10) + 11;
+        let response = await request.put(`${URL}/todos/${todo_id}`, {
+            headers: {
+                "x-challenger": token}, 
+                data: {
+                    id: todo_wrong_id,
+                    doneStatus: true,
+                    title: 'one two three',
+                    description: 'bla',
+                }
+            },
+        );
+        let body = await response.json();
+        let headers = response.headers();
+
+        expect(response.status()).toBe(400);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(body.errorMessages[0]).toContain('Can not amend id from');
+    });
+
 });
