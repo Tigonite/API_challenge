@@ -247,8 +247,42 @@ test.describe("Tsets for APIchallenge", () => {
         expect(body.errorMessages[0]).toContain('Could not find field: priority');
     });
 
+    test("16 PUT /todos/{id} (400)", async ( { request } ) => {
+        let todo_id = Math.floor(Math.random() * 10) + 11;
+        let response = await request.put(`${URL}/todos/${todo_id}`, {
+            headers: {
+                "x-challenger": token}, 
+                data: {
+                    doneStatus: false,
+                    title: 'one two three',
+                    description: 'bla',
+                }
+            },
+        );
+        let body = await response.json();
+        let headers = response.headers();
 
+        expect(response.status()).toBe(400);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(body.errorMessages[0]).toContain('Cannot create todo with PUT due to Auto fields id');
+    });
 
+    test("17 POST /todos/{id} (200)", async ( { request } ) => {
+        let todo_id = Math.floor(Math.random() * 10) + 1;
+        let response = await request.post(`${URL}/todos/${todo_id}`, {
+            headers: {
+                "x-challenger": token}, 
+                data: {
+                    title: 'one two three',
+                }
+            },
+        );
+        let body = await response.json();
+        let headers = response.headers();
 
+        expect(response.status()).toBe(200);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(body.title).toBe('one two three');
+    });
 
-})
+});
