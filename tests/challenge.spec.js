@@ -486,4 +486,35 @@ test.describe("Tsets for APIchallenge", () => {
         expect(headers["content-type"]).toContain("application/xml");
     });
 
+    test("29 GET /todos (200) no accept", async ( { request } ) => {
+        let response = await request.get(`${URL}/todos`, {
+            headers: {
+                "x-challenger": token,
+            }, 
+            },
+        );
+
+        let headers = response.headers();
+
+        expect(response.status()).toBe(200);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(headers["content-type"]).toContain("application/json");
+    });
+
+    test("30 GET /todos (406)", async ( { request } ) => {
+        let response = await request.get(`${URL}/todos`, {
+            headers: {
+                "x-challenger": token,
+                accept: "application/gzip",
+            }, 
+            },
+        );
+
+        let headers = response.headers();
+
+        expect(response.status()).toBe(406);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(headers["content-type"]).toContain("application/json");
+    });
+
 });
