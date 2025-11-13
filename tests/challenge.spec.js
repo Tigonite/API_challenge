@@ -285,4 +285,46 @@ test.describe("Tsets for APIchallenge", () => {
         expect(body.title).toBe('one two three');
     });
 
+    test("18 POST /todos/{id} (404)", async ( { request } ) => {
+        let todo_id = Math.floor(Math.random() * 10) + 11;
+        let response = await request.post(`${URL}/todos/${todo_id}`, {
+            headers: {
+                "x-challenger": token}, 
+                data: {
+                    title: 'one two three',
+                }
+            },
+        );
+        let body = await response.json();
+        let headers = response.headers();
+
+        expect(response.status()).toBe(404);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(body.errorMessages[0]).toContain('No such todo entity instance with id');
+    });
+
+    test("19 PUT /todos/{id} full (200)", async ( { request } ) => {
+        let todo_id = Math.floor(Math.random() * 10) + 1;
+        let response = await request.put(`${URL}/todos/${todo_id}`, {
+            headers: {
+                "x-challenger": token}, 
+                data: {
+                    doneStatus: true,
+                    title: 'one two three',
+                    description: 'bla',
+                }
+            },
+        );
+        let body = await response.json();
+        let headers = response.headers();
+
+        expect(response.status()).toBe(200);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(body.doneStatus).toBe(true);
+        expect(body.title).toBe('one two three');
+        expect(body.description).toBe('bla');
+    });
+
+    
+
 });
