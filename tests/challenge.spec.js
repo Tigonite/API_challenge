@@ -247,8 +247,179 @@ test.describe("Tsets for APIchallenge", () => {
         expect(body.errorMessages[0]).toContain('Could not find field: priority');
     });
 
+    test("16 PUT /todos/{id} (400)", async ( { request } ) => {
+        let todo_id = Math.floor(Math.random() * 10) + 11;
+        let response = await request.put(`${URL}/todos/${todo_id}`, {
+            headers: {
+                "x-challenger": token}, 
+                data: {
+                    doneStatus: false,
+                    title: 'one two three',
+                    description: 'bla',
+                }
+            },
+        );
+        let body = await response.json();
+        let headers = response.headers();
 
+        expect(response.status()).toBe(400);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(body.errorMessages[0]).toContain('Cannot create todo with PUT due to Auto fields id');
+    });
 
+    test("17 POST /todos/{id} (200)", async ( { request } ) => {
+        let todo_id = Math.floor(Math.random() * 10) + 1;
+        let response = await request.post(`${URL}/todos/${todo_id}`, {
+            headers: {
+                "x-challenger": token}, 
+                data: {
+                    title: 'one two three',
+                }
+            },
+        );
+        let body = await response.json();
+        let headers = response.headers();
 
+        expect(response.status()).toBe(200);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(body.title).toBe('one two three');
+    });
 
-})
+    test("18 POST /todos/{id} (404)", async ( { request } ) => {
+        let todo_id = Math.floor(Math.random() * 10) + 11;
+        let response = await request.post(`${URL}/todos/${todo_id}`, {
+            headers: {
+                "x-challenger": token}, 
+                data: {
+                    title: 'one two three',
+                }
+            },
+        );
+        let body = await response.json();
+        let headers = response.headers();
+
+        expect(response.status()).toBe(404);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(body.errorMessages[0]).toContain('No such todo entity instance with id');
+    });
+
+    test("19 PUT /todos/{id} full (200)", async ( { request } ) => {
+        let todo_id = Math.floor(Math.random() * 10) + 1;
+        let response = await request.put(`${URL}/todos/${todo_id}`, {
+            headers: {
+                "x-challenger": token}, 
+                data: {
+                    doneStatus: true,
+                    title: 'one two three',
+                    description: 'bla',
+                }
+            },
+        );
+        let body = await response.json();
+        let headers = response.headers();
+
+        expect(response.status()).toBe(200);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(body.doneStatus).toBe(true);
+        expect(body.title).toBe('one two three');
+        expect(body.description).toBe('bla');
+    });
+
+    test("20 PUT /todos/{id} full (200)", async ( { request } ) => {
+        let todo_id = Math.floor(Math.random() * 10) + 1;
+        let response = await request.put(`${URL}/todos/${todo_id}`, {
+            headers: {
+                "x-challenger": token}, 
+                data: {
+                    title: 'one two three',
+                }
+            },
+        );
+        let body = await response.json();
+        let headers = response.headers();
+
+        expect(response.status()).toBe(200);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(body.title).toBe('one two three');
+    });
+
+    test("21 PUT /todos/{id} no title (400)", async ( { request } ) => {
+        let todo_id = Math.floor(Math.random() * 10) + 1;
+        let response = await request.put(`${URL}/todos/${todo_id}`, {
+            headers: {
+                "x-challenger": token}, 
+                data: {
+                    title: null,
+                }
+            },
+        );
+        let body = await response.json();
+        let headers = response.headers();
+
+        expect(response.status()).toBe(400);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(body.errorMessages[0]).toContain('title : field is mandatory');
+    });
+
+    test("22 PUT /todos/{id} no amend id (400)", async ( { request } ) => {
+        let todo_id = Math.floor(Math.random() * 10) + 1;
+        let todo_wrong_id = Math.floor(Math.random() * 10) + 11;
+        let response = await request.put(`${URL}/todos/${todo_id}`, {
+            headers: {
+                "x-challenger": token}, 
+                data: {
+                    id: todo_wrong_id,
+                    doneStatus: true,
+                    title: 'one two three',
+                    description: 'bla',
+                }
+            },
+        );
+        let body = await response.json();
+        let headers = response.headers();
+
+        expect(response.status()).toBe(400);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(body.errorMessages[0]).toContain('Can not amend id from');
+    });
+
+    test("23 DELETE /todos/{id} (200)", async ( { request } ) => {
+        let todo_id = Math.floor(Math.random() * 10) + 1;
+        let response = await request.delete(`${URL}/todos/${todo_id}`, {
+            headers: {
+                "x-challenger": token}, 
+            },
+        );
+        let re_response = await request.get(`${URL}/todos/${todo_id}`, {
+            headers: {
+                "x-challenger": token}, 
+            },
+        );
+
+        let body = await re_response.json();
+        let headers = re_response.headers();
+
+        expect(response.status()).toBe(200);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(body.errorMessages[0]).toContain('Could not find an instance with');
+    });
+
+    test("24/OPTIONS /todos (200)", async ({ request }) => {
+    let response = await request.fetch(`${URL}/todos`, {
+      method: "OPTIONS",
+      headers: {
+        "x-challenger": token,
+      },
+    });
+    let headers = response.headers();
+    expect(response.status()).toBe(200);
+    expect(headers["allow"]).toContain("OPTIONS");
+    expect(headers["allow"]).toContain("GET");
+    expect(headers["allow"]).toContain("POST");
+    expect(headers["allow"]).toContain("HEAD");
+    expect(headers["allow"]).not.toContain("PUT");
+    expect(headers["allow"]).not.toContain("DELETE");
+    expect(headers["allow"]).not.toContain("PATCH");
+  });
+
+});
