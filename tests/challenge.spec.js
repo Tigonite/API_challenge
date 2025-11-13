@@ -448,12 +448,26 @@ test.describe("Tsets for APIchallenge", () => {
         );
 
         let headers = response.headers();
-        let body = response.json();
 
         expect(response.status()).toBe(200);
         expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
         expect(headers["content-type"]).toContain("application/json");
-        console.log(body);
+    });
+
+    test("27 GET /todos (200) ANY", async ( { request } ) => {
+        let response = await request.get(`${URL}/todos`, {
+            headers: {
+                "x-challenger": token,
+                accept: `*/*`,
+            }, 
+            },
+        );
+
+        let headers = response.headers();
+
+        expect(response.status()).toBe(200);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(headers["content-type"]).toContain("application/json");
     });
 
 });
