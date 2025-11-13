@@ -404,7 +404,7 @@ test.describe("Tsets for APIchallenge", () => {
         expect(body.errorMessages[0]).toContain('Could not find an instance with');
     });
 
-    test("24/OPTIONS /todos (200)", async ({ request }) => {
+    test("24 OPTIONS /todos (200)", async ({ request }) => {
     let response = await request.fetch(`${URL}/todos`, {
       method: "OPTIONS",
       headers: {
@@ -420,6 +420,24 @@ test.describe("Tsets for APIchallenge", () => {
     expect(headers["allow"]).not.toContain("PUT");
     expect(headers["allow"]).not.toContain("DELETE");
     expect(headers["allow"]).not.toContain("PATCH");
-  });
+    });
+
+    test("25 GET /todos (200) XML", async ( { request } ) => {
+        let response = await request.get(`${URL}/todos`, {
+            headers: {
+                "x-challenger": token,
+                accept: "application/xml",
+            }, 
+            },
+        );
+
+        let body = await response.text();
+        let headers = response.headers();
+
+        //expect(response.status()).toBe(200);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        //expect(body.errorMessages[0]).toContain('Could not find an instance with');
+        console.log(body);
+    });
 
 });
