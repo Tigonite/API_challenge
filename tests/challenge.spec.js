@@ -432,6 +432,7 @@ test.describe("Tsets for APIchallenge", () => {
         );
 
         let headers = response.headers();
+        let body = response.text();
 
         expect(response.status()).toBe(200);
         expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
@@ -516,5 +517,24 @@ test.describe("Tsets for APIchallenge", () => {
         expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
         expect(headers["content-type"]).toContain("application/json");
     });
+
+    test("31 POST /todos XML", async ( { request } ) => {
+        let response = await request.post(`${URL}/todos`, {
+            headers: {
+                "x-challenger": token,
+                "Content-Type": 'application/xml',
+                "accept": "application/xml",
+            },
+            data: '<?xml version="1.0" encoding="UTF-8"?><todo><doneStatus>true</doneStatus><title>file paperwork today</title></todo>'
+            });
+
+        let headers = response.headers();
+
+        expect(response.status()).toBe(201);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(headers["content-type"]).toContain("application/xml");
+    });
+
+
 
 });
