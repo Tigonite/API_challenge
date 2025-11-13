@@ -401,8 +401,25 @@ test.describe("Tsets for APIchallenge", () => {
 
         expect(response.status()).toBe(200);
         expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
-        //expect(body.errorMessages[0]).toContain('Can not amend id from');
-        console.log(body);
+        expect(body.errorMessages[0]).toContain('Could not find an instance with');
     });
+
+    test("24/OPTIONS /todos (200)", async ({ request }) => {
+    let response = await request.fetch(`${URL}/todos`, {
+      method: "OPTIONS",
+      headers: {
+        "x-challenger": token,
+      },
+    });
+    let headers = response.headers();
+    expect(response.status()).toBe(200);
+    expect(headers["allow"]).toContain("OPTIONS");
+    expect(headers["allow"]).toContain("GET");
+    expect(headers["allow"]).toContain("POST");
+    expect(headers["allow"]).toContain("HEAD");
+    expect(headers["allow"]).not.toContain("PUT");
+    expect(headers["allow"]).not.toContain("DELETE");
+    expect(headers["allow"]).not.toContain("PATCH");
+  });
 
 });
