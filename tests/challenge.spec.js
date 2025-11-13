@@ -325,6 +325,40 @@ test.describe("Tsets for APIchallenge", () => {
         expect(body.description).toBe('bla');
     });
 
-    
+    test("20 PUT /todos/{id} full (200)", async ( { request } ) => {
+        let todo_id = Math.floor(Math.random() * 10) + 1;
+        let response = await request.put(`${URL}/todos/${todo_id}`, {
+            headers: {
+                "x-challenger": token}, 
+                data: {
+                    title: 'one two three',
+                }
+            },
+        );
+        let body = await response.json();
+        let headers = response.headers();
+
+        expect(response.status()).toBe(200);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(body.title).toBe('one two three');
+    });
+
+    test("21 PUT /todos/{id} no title (400)", async ( { request } ) => {
+        let todo_id = Math.floor(Math.random() * 10) + 1;
+        let response = await request.put(`${URL}/todos/${todo_id}`, {
+            headers: {
+                "x-challenger": token}, 
+                data: {
+                    title: null,
+                }
+            },
+        );
+        let body = await response.json();
+        let headers = response.headers();
+
+        expect(response.status()).toBe(400);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(body.errorMessages[0]).toContain('title : field is mandatory');
+    });
 
 });
