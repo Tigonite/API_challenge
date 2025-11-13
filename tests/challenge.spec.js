@@ -383,4 +383,26 @@ test.describe("Tsets for APIchallenge", () => {
         expect(body.errorMessages[0]).toContain('Can not amend id from');
     });
 
+    test("23 DELETE /todos/{id} (200)", async ( { request } ) => {
+        let todo_id = Math.floor(Math.random() * 10) + 1;
+        let response = await request.delete(`${URL}/todos/${todo_id}`, {
+            headers: {
+                "x-challenger": token}, 
+            },
+        );
+        let re_response = await request.get(`${URL}/todos/${todo_id}`, {
+            headers: {
+                "x-challenger": token}, 
+            },
+        );
+
+        let body = await re_response.json();
+        let headers = re_response.headers();
+
+        expect(response.status()).toBe(200);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        //expect(body.errorMessages[0]).toContain('Can not amend id from');
+        console.log(body);
+    });
+
 });
