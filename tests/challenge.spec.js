@@ -404,7 +404,7 @@ test.describe("Tsets for APIchallenge", () => {
         expect(body.errorMessages[0]).toContain('Could not find an instance with');
     });
 
-    test("24/OPTIONS /todos (200)", async ({ request }) => {
+    test("24 OPTIONS /todos (200)", async ({ request }) => {
     let response = await request.fetch(`${URL}/todos`, {
       method: "OPTIONS",
       headers: {
@@ -420,6 +420,121 @@ test.describe("Tsets for APIchallenge", () => {
     expect(headers["allow"]).not.toContain("PUT");
     expect(headers["allow"]).not.toContain("DELETE");
     expect(headers["allow"]).not.toContain("PATCH");
-  });
+    });
+
+    test("25 GET /todos (200) XML", async ( { request } ) => {
+        let response = await request.get(`${URL}/todos`, {
+            headers: {
+                "x-challenger": token,
+                accept: "application/xml",
+            }, 
+            },
+        );
+
+        let headers = response.headers();
+        let body = response.text();
+
+        expect(response.status()).toBe(200);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(headers["content-type"]).toContain("application/xml");
+    });
+
+    test("26 GET /todos (200) JSON", async ( { request } ) => {
+        let response = await request.get(`${URL}/todos`, {
+            headers: {
+                "x-challenger": token,
+                accept: "application/json",
+            }, 
+            },
+        );
+
+        let headers = response.headers();
+
+        expect(response.status()).toBe(200);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(headers["content-type"]).toContain("application/json");
+    });
+
+    test("27 GET /todos (200) ANY", async ( { request } ) => {
+        let response = await request.get(`${URL}/todos`, {
+            headers: {
+                "x-challenger": token,
+                accept: "*/*",
+            }, 
+            },
+        );
+
+        let headers = response.headers();
+
+        expect(response.status()).toBe(200);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(headers["content-type"]).toContain("application/json");
+    });
+
+    test("28 GET /todos (200) XML pref", async ( { request } ) => {
+        let response = await request.get(`${URL}/todos`, {
+            headers: {
+                "x-challenger": token,
+                accept: "application/xml, application/json",
+            }, 
+            },
+        );
+
+        let headers = response.headers();
+
+        expect(response.status()).toBe(200);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(headers["content-type"]).toContain("application/xml");
+    });
+
+    test("29 GET /todos (200) no accept", async ( { request } ) => {
+        let response = await request.get(`${URL}/todos`, {
+            headers: {
+                "x-challenger": token,
+            }, 
+            },
+        );
+
+        let headers = response.headers();
+
+        expect(response.status()).toBe(200);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(headers["content-type"]).toContain("application/json");
+    });
+
+    test("30 GET /todos (406)", async ( { request } ) => {
+        let response = await request.get(`${URL}/todos`, {
+            headers: {
+                "x-challenger": token,
+                accept: "application/gzip",
+            }, 
+            },
+        );
+
+        let headers = response.headers();
+
+        expect(response.status()).toBe(406);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(headers["content-type"]).toContain("application/json");
+    });
+
+    test("31 POST /todos XML", async ( { request } ) => {
+        let response = await request.post(`${URL}/todos`, {
+            headers: {
+                "x-challenger": token,
+                "Content-Type": 'application/xml',
+                "accept": "application/xml",
+            },
+            data: '<?xml version="1.0" encoding="UTF-8"?><todo><doneStatus>true</doneStatus><title>file paperwork today</title></todo>'
+            });
+
+        let headers = response.headers();
+
+        expect(response.status()).toBe(201);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(headers["content-type"]).toContain("application/xml");
+    });
+
+
 
 });
