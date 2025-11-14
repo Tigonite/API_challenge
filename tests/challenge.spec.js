@@ -556,4 +556,25 @@ test.describe("Tsets for APIchallenge", () => {
         expect(headers["content-type"]).toContain("application/json");
     });
 
+    test("33 POST /todos (415)", async ( { request } ) => {
+        let response = await request.post(`${URL}/todos`, {
+            headers: {
+                "x-challenger": token,
+                "Content-Type": 'gzip',
+                "accept": "application/json",
+            },
+            data: {
+                doneStatus: true,
+                title: 'one two three',
+                description: 'bla',
+            }
+            });
+
+        let headers = response.headers();
+
+        expect(response.status()).toBe(415);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(headers["content-type"]).toContain("application/json");
+    });
+
 });
