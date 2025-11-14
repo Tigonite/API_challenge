@@ -535,6 +535,109 @@ test.describe("Tsets for APIchallenge", () => {
         expect(headers["content-type"]).toContain("application/xml");
     });
 
+    test("32 POST /todos JSON", async ( { request } ) => {
+        let response = await request.post(`${URL}/todos`, {
+            headers: {
+                "x-challenger": token,
+                "Content-Type": 'application/json',
+                "accept": "application/json",
+            },
+            data: {
+                doneStatus: true,
+                title: 'one two three',
+                description: 'bla',
+            }
+            });
 
+        let headers = response.headers();
+
+        expect(response.status()).toBe(201);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(headers["content-type"]).toContain("application/json");
+    });
+
+    test("33 POST /todos (415)", async ( { request } ) => {
+        let response = await request.post(`${URL}/todos`, {
+            headers: {
+                "x-challenger": token,
+                "Content-Type": 'gzip',
+                "accept": "application/json",
+            },
+            data: {
+                doneStatus: true,
+                title: 'one two three',
+                description: 'bla',
+            }
+            });
+
+        let headers = response.headers();
+
+        expect(response.status()).toBe(415);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(headers["content-type"]).toContain("application/json");
+    });
+
+    test("41 DELETE /heartbeat (405)", async ( { request } ) => {
+        let response = await request.delete(`${URL}/heartbeat`, {
+            headers: {
+                "x-challenger": token,
+                "Content-Type": 'application/json',
+                "accept": "application/json",
+            },
+            data: {
+                doneStatus: true,
+                title: 'one two three',
+                description: 'bla',
+            }
+            });
+
+        let headers = response.headers();
+
+        expect(response.status()).toBe(405);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(headers["content-type"]).toContain("application/json");
+    });
+
+    test("42 PATCH /heartbeat", async ( { request } ) => {
+        let response = await request.patch(`${URL}/heartbeat`, {
+            headers: {
+                "x-challenger": token,
+                "Content-Type": 'application/json',
+                "accept": "application/json",
+            },
+            data: {
+                doneStatus: true,
+                title: 'one two three',
+                description: 'bla',
+            }
+            });
+
+        let headers = response.headers();
+
+        expect(response.status()).toBe(500);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        expect(headers["content-type"]).toContain("application/json");
+    });
+
+    test("58 DELETE /todos/{id} (200) all", async ( { request } ) => {
+        let todo_id = 1;
+        let response
+        while (todo_id <= 10) {
+            response = await request.delete(`${URL}/todos/${todo_id}`, {
+            headers: {
+                "x-challenger": token},
+            });
+            todo_id += 1;
+            
+        };
+        
+        //let body = await response.json();
+        let headers = response.headers();
+
+        expect(response.status()).toBe(200);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        //expect(body.errorMessages[0]).toContain('Could not find an instance with');
+        console.log(response);
+    });
 
 });
