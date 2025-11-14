@@ -619,4 +619,25 @@ test.describe("Tsets for APIchallenge", () => {
         expect(headers["content-type"]).toContain("application/json");
     });
 
+    test("58 DELETE /todos/{id} (200) all", async ( { request } ) => {
+        let todo_id = 1;
+        let response
+        while (todo_id <= 10) {
+            response = await request.delete(`${URL}/todos/${todo_id}`, {
+            headers: {
+                "x-challenger": token},
+            });
+            todo_id += 1;
+            
+        };
+        
+        //let body = await response.json();
+        let headers = response.headers();
+
+        expect(response.status()).toBe(200);
+        expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
+        //expect(body.errorMessages[0]).toContain('Could not find an instance with');
+        console.log(response);
+    });
+
 });
