@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
+import { BuilderTodo } from "../ src/helpers/builders";
 
-test.describe("Tsets for APIchallenge", () => {
+test.describe("Tests for APIchallenge", () => {
     let URL = "https://apichallenges.herokuapp.com"
     let token
 
@@ -49,12 +50,14 @@ test.describe("Tsets for APIchallenge", () => {
             }},
         );
 
+        let headers = response.headers();
+
         expect(response.status()).toBe(404);
         expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
     });
 
     test("05 GET /todos/{id} (200)", async ( { request } ) => {
-        let todo_id = Math.floor(Math.random() * 10) + 1;
+        const todo_id = new BuilderTodo().addValidTodoId();
         let response = await request.get(`${URL}/todos/${todo_id}`, {
             headers: {
                 "x-challenger": token
@@ -62,14 +65,14 @@ test.describe("Tsets for APIchallenge", () => {
         );
         let body = await response.json();
         let headers = response.headers();
-
+        
         expect(response.status()).toBe(200);
         expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
         expect(body.todos.length).toBe(1);
     });
 
     test("06 GET /todos/{id} (404)", async ( { request } ) => {
-        let todo_id = Math.floor(Math.random() * 10) + 11;
+        const todo_id = new BuilderTodo().addInvalidTodoId();
         let response = await request.get(`${URL}/todos/${todo_id}`, {
             headers: {
                 "x-challenger": token
@@ -248,7 +251,7 @@ test.describe("Tsets for APIchallenge", () => {
     });
 
     test("16 PUT /todos/{id} (400)", async ( { request } ) => {
-        let todo_id = Math.floor(Math.random() * 10) + 11;
+        const todo_id = new BuilderTodo().addInvalidTodoId();
         let response = await request.put(`${URL}/todos/${todo_id}`, {
             headers: {
                 "x-challenger": token}, 
@@ -268,7 +271,7 @@ test.describe("Tsets for APIchallenge", () => {
     });
 
     test("17 POST /todos/{id} (200)", async ( { request } ) => {
-        let todo_id = Math.floor(Math.random() * 10) + 1;
+        const todo_id = new BuilderTodo().addValidTodoId();
         let response = await request.post(`${URL}/todos/${todo_id}`, {
             headers: {
                 "x-challenger": token}, 
@@ -286,7 +289,7 @@ test.describe("Tsets for APIchallenge", () => {
     });
 
     test("18 POST /todos/{id} (404)", async ( { request } ) => {
-        let todo_id = Math.floor(Math.random() * 10) + 11;
+        const todo_id = new BuilderTodo().addInvalidTodoId();
         let response = await request.post(`${URL}/todos/${todo_id}`, {
             headers: {
                 "x-challenger": token}, 
@@ -304,7 +307,7 @@ test.describe("Tsets for APIchallenge", () => {
     });
 
     test("19 PUT /todos/{id} full (200)", async ( { request } ) => {
-        let todo_id = Math.floor(Math.random() * 10) + 1;
+        const todo_id = new BuilderTodo().addValidTodoId();
         let response = await request.put(`${URL}/todos/${todo_id}`, {
             headers: {
                 "x-challenger": token}, 
@@ -326,7 +329,7 @@ test.describe("Tsets for APIchallenge", () => {
     });
 
     test("20 PUT /todos/{id} full (200)", async ( { request } ) => {
-        let todo_id = Math.floor(Math.random() * 10) + 1;
+        const todo_id = new BuilderTodo().addValidTodoId();
         let response = await request.put(`${URL}/todos/${todo_id}`, {
             headers: {
                 "x-challenger": token}, 
@@ -344,7 +347,7 @@ test.describe("Tsets for APIchallenge", () => {
     });
 
     test("21 PUT /todos/{id} no title (400)", async ( { request } ) => {
-        let todo_id = Math.floor(Math.random() * 10) + 1;
+        const todo_id = new BuilderTodo().addValidTodoId();
         let response = await request.put(`${URL}/todos/${todo_id}`, {
             headers: {
                 "x-challenger": token}, 
@@ -362,8 +365,8 @@ test.describe("Tsets for APIchallenge", () => {
     });
 
     test("22 PUT /todos/{id} no amend id (400)", async ( { request } ) => {
-        let todo_id = Math.floor(Math.random() * 10) + 1;
-        let todo_wrong_id = Math.floor(Math.random() * 10) + 11;
+        const todo_id = new BuilderTodo().addValidTodoId();
+        const todo_wrong_id = new BuilderTodo().addInvalidTodoId();
         let response = await request.put(`${URL}/todos/${todo_id}`, {
             headers: {
                 "x-challenger": token}, 
@@ -384,7 +387,7 @@ test.describe("Tsets for APIchallenge", () => {
     });
 
     test("23 DELETE /todos/{id} (200)", async ( { request } ) => {
-        let todo_id = Math.floor(Math.random() * 10) + 1;
+        const todo_id = new BuilderTodo().addValidTodoId();
         let response = await request.delete(`${URL}/todos/${todo_id}`, {
             headers: {
                 "x-challenger": token}, 
@@ -631,13 +634,10 @@ test.describe("Tsets for APIchallenge", () => {
             
         };
         
-        //let body = await response.json();
         let headers = response.headers();
 
         expect(response.status()).toBe(200);
         expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
-        //expect(body.errorMessages[0]).toContain('Could not find an instance with');
-        console.log(response);
     });
 
 });
