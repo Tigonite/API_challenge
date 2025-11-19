@@ -3,7 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test_challenges": "npx playwright test --grep @challenges",
+    "test_todos": "npx playwright test --grep @todos",
+    "test_heartbeat": "npx playwright test --grep @heartbeat",
+    "test": "npx playwright test"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Tigonite/API_challenge.git"
