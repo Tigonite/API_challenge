@@ -14,7 +14,7 @@ test.describe("Tests for APIchallenge", () => {
         expect(response.status()).toBe(201);
     });
 
-    test("02 GET /challenges (200)", async ( { request } ) => {
+    test("02 GET /challenges (200) @challenges", async ( { request } ) => {
         let response = await request.get(`${URL}/challenges`, {
             headers: {
                 "x-challenger": token
@@ -29,7 +29,7 @@ test.describe("Tests for APIchallenge", () => {
 
     });
 
-    test("03 GET /todos (200)", async ( { request } ) => {
+    test("03 GET /todos (200) @todos", async ( { request } ) => {
         let response = await request.get(`${URL}/todos`, {
             headers: {
                 "x-challenger": token
@@ -43,7 +43,7 @@ test.describe("Tests for APIchallenge", () => {
         expect(body.todos.length).toBe(10)
     });
 
-    test("04 GET /todo (404)", async ( { request } ) => {
+    test("04 GET /todo (404) @todo", async ( { request } ) => {
         let response = await request.get(`${URL}/todo`, {
             headers: {
                 "x-challenger": token
@@ -56,8 +56,8 @@ test.describe("Tests for APIchallenge", () => {
         expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
     });
 
-    test("05 GET /todos/{id} (200)", async ( { request } ) => {
-        const todo_id = new BuilderTodo().addValidTodoId();
+    test("05 GET /todos/{id} (200) @todos", async ( { request } ) => {
+        const todo_id = new BuilderTodo().validTodoId;
         let response = await request.get(`${URL}/todos/${todo_id}`, {
             headers: {
                 "x-challenger": token
@@ -71,8 +71,8 @@ test.describe("Tests for APIchallenge", () => {
         expect(body.todos.length).toBe(1);
     });
 
-    test("06 GET /todos/{id} (404)", async ( { request } ) => {
-        const todo_id = new BuilderTodo().addInvalidTodoId();
+    test("06 GET /todos/{id} (404) @todos", async ( { request } ) => {
+        const todo_id = new BuilderTodo().invalidTodoId;
         let response = await request.get(`${URL}/todos/${todo_id}`, {
             headers: {
                 "x-challenger": token
@@ -86,7 +86,7 @@ test.describe("Tests for APIchallenge", () => {
         expect(body.todos).toBe(undefined);
     });
 
-    test("07 GET /todos (200) ?filter", async ( { request } ) => {
+    test("07 GET /todos (200) ?filter @todos", async ( { request } ) => {
         let response = await request.get(`${URL}/todos?doneStatus=false`, {
             headers: {
                 "x-challenger": token
@@ -100,7 +100,7 @@ test.describe("Tests for APIchallenge", () => {
         expect(body.todos[0].doneStatus).toBe(false);
     });
 
-    test("08 HEAD /todos (200)", async ( { request } ) => {
+    test("08 HEAD /todos (200) @todos", async ( { request } ) => {
         let response = await request.head(`${URL}/todos`, {
             headers: {
                 "x-challenger": token
@@ -112,15 +112,16 @@ test.describe("Tests for APIchallenge", () => {
         expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
     });
 
-    test("09 POST /todos (201)", async ( { request } ) => {
+    test("09 POST /todos (201) @todos", async ( { request } ) => {
+        const createTodo = new BuilderTodo()
+        .addDoneStatus(true)
+        .addTitle()
+        .addDescription()
+        .generate()
         let response = await request.post(`${URL}/todos`, {
             headers: {
                 "x-challenger": token}, 
-                data: {
-                    doneStatus: true,
-                    title: 'one two three',
-                    description: 'just bla bla bla'
-                }
+            data: createTodo,
             },
         );
         let body = await response.json();
@@ -133,15 +134,16 @@ test.describe("Tests for APIchallenge", () => {
         expect(body.description).toBe('just bla bla bla');
     });
 
-    test("10 POST /todos (400) doneStatus", async ( { request } ) => {
+    test("10 POST /todos (400) @todos", async ( { request } ) => {
+        const createTodo = new BuilderTodo()
+        .addDoneStatus("true")
+        .addTitle()
+        .addDescription()
+        .generate()
         let response = await request.post(`${URL}/todos`, {
             headers: {
                 "x-challenger": token}, 
-                data: {
-                    doneStatus: "true",
-                    title: 'one two three',
-                    description: 'just bla bla bla'
-                }
+            data: createTodo,
             },
         );
         let body = await response.json();
@@ -152,15 +154,16 @@ test.describe("Tests for APIchallenge", () => {
         expect(body.errorMessages[0]).toContain("Failed Validation: doneStatus should be BOOLEAN");
     });
 
-    test("11 POST /todos (400) title too long", async ( { request } ) => {
+    test("11 POST /todos (400) title too long @todos", async ( { request } ) => {
+        const createTodo = new BuilderTodo()
+        .addDoneStatus()
+        .addLongTitle()
+        .addDescription()
+        .generate()
         let response = await request.post(`${URL}/todos`, {
             headers: {
                 "x-challenger": token}, 
-                data: {
-                    doneStatus: false,
-                    title: 'one two three and so on and so on and so on and so on',
-                    description: 'just bla bla bla'
-                }
+                data: createTodo,
             },
         );
         let body = await response.json();
@@ -171,15 +174,16 @@ test.describe("Tests for APIchallenge", () => {
         expect(body.errorMessages[0]).toContain("Failed Validation: Maximum allowable length exceeded for title - maximum allowed is 50");
     });
 
-    test("12 POST /todos (400) description too long", async ( { request } ) => {
+    test("12 POST /todos (400) description too long @todos", async ( { request } ) => {
+        const createTodo = new BuilderTodo()
+        .addDoneStatus()
+        .addTitle()
+        .addLongDescription()
+        .generate()
         let response = await request.post(`${URL}/todos`, {
             headers: {
                 "x-challenger": token}, 
-                data: {
-                    doneStatus: false,
-                    title: 'one two three',
-                    description: "Turn on, I see red Adrenaline crash and crack my head Nitro junkie, paint me dead And I see red hundred plus through black and white War horse, warhead Fuck 'em man, white-knuckle tight Through black and white"
-                }
+                data: createTodo,
             },
         );
         let body = await response.json();
@@ -190,15 +194,16 @@ test.describe("Tests for APIchallenge", () => {
         expect(body.errorMessages[0]).toContain("Failed Validation: Maximum allowable length exceeded for description - maximum allowed is 200");
     });
 
-    test("13 POST /todos (201) max out content", async ( { request } ) => {
+    test("13 POST /todos (201) max out content @todos", async ( { request } ) => {
+        const createTodo = new BuilderTodo()
+        .addDoneStatus()
+        .addMaxTitle()
+        .addMaxDescription()
+        .generate()
         let response = await request.post(`${URL}/todos`, {
             headers: {
                 "x-challenger": token}, 
-                data: {
-                    doneStatus: false,
-                    title: 'one two three and so on and so on and so on and so',
-                    description: "Turn on, I see red Adrenaline crash and crack my head Nitro junkie, paint me dead And I see red hundred plus through black and white War horse, warhead Fuck 'em man, white-knuckle tight Through blacck"
-                }
+                data: createTodo,
             },
         );
         let body = await response.json();
@@ -211,15 +216,16 @@ test.describe("Tests for APIchallenge", () => {
         expect(body.description.length).toBe(200);
     });
 
-    test("14 POST /todos (413) content too long", async ( { request } ) => {
+    test("14 POST /todos (413) content too long @todos", async ( { request } ) => {
+        const createTodo = new BuilderTodo()
+        .addDoneStatus()
+        .addTitle()
+        .addOverDescription()
+        .generate()
         let response = await request.post(`${URL}/todos`, {
             headers: {
                 "x-challenger": token}, 
-                data: {
-                    doneStatus: false,
-                    title: 'one two three and so on and so on and so on and so',
-                    description: "Turn on, I see red Adrenaline crash and crack my head Nitro junkie, paint me dead And I see red hundred plus through black and white War horse, warhead Fuck 'em man, white-knuckle tight Through blacck".repeat(26)
-                }
+                data: createTodo,
             },
         );
         let body = await response.json();
@@ -230,16 +236,17 @@ test.describe("Tests for APIchallenge", () => {
         expect(body.errorMessages[0]).toContain("Error: Request body too large, max allowed is 5000 bytes");
     });
 
-    test("15 POST /todos (400) extra", async ( { request } ) => {
+    test("15 POST /todos (400) extra @todos", async ( { request } ) => {
+        const createTodo = new BuilderTodo()
+        .addDoneStatus()
+        .addTitle()
+        .addDescription()
+        .addPriority()
+        .generate()
         let response = await request.post(`${URL}/todos`, {
             headers: {
                 "x-challenger": token}, 
-                data: {
-                    doneStatus: false,
-                    title: 'one two three and so on and so on and so on and so',
-                    description: 'bla',
-                    priority: "high",
-                }
+                data: createTodo,
             },
         );
         let body = await response.json();
@@ -250,16 +257,17 @@ test.describe("Tests for APIchallenge", () => {
         expect(body.errorMessages[0]).toContain('Could not find field: priority');
     });
 
-    test("16 PUT /todos/{id} (400)", async ( { request } ) => {
-        const todo_id = new BuilderTodo().addInvalidTodoId();
+    test("16 PUT /todos/{id} (400) @todos", async ( { request } ) => {
+        const todo_id = new BuilderTodo().invalidTodoId;
+        const createTodo = new BuilderTodo()
+        .addDoneStatus()
+        .addTitle()
+        .addDescription()
+        .generate()
         let response = await request.put(`${URL}/todos/${todo_id}`, {
             headers: {
                 "x-challenger": token}, 
-                data: {
-                    doneStatus: false,
-                    title: 'one two three',
-                    description: 'bla',
-                }
+                data: createTodo,
             },
         );
         let body = await response.json();
@@ -270,14 +278,15 @@ test.describe("Tests for APIchallenge", () => {
         expect(body.errorMessages[0]).toContain('Cannot create todo with PUT due to Auto fields id');
     });
 
-    test("17 POST /todos/{id} (200)", async ( { request } ) => {
-        const todo_id = new BuilderTodo().addValidTodoId();
+    test("17 POST /todos/{id} (200) @todos", async ( { request } ) => {
+        const todo_id = new BuilderTodo().validTodoId;
+        const createTodo = new BuilderTodo()
+        .addTitle()
+        .generate()
         let response = await request.post(`${URL}/todos/${todo_id}`, {
             headers: {
                 "x-challenger": token}, 
-                data: {
-                    title: 'one two three',
-                }
+                data: createTodo,
             },
         );
         let body = await response.json();
@@ -288,13 +297,16 @@ test.describe("Tests for APIchallenge", () => {
         expect(body.title).toBe('one two three');
     });
 
-    test("18 POST /todos/{id} (404)", async ( { request } ) => {
-        const todo_id = new BuilderTodo().addInvalidTodoId();
+    test("18 POST /todos/{id} (404) @todos", async ( { request } ) => {
+        const todo_id = new BuilderTodo().invalidTodoId;
+        const createTodo = new BuilderTodo()
+        .addTitle()
+        .generate()
         let response = await request.post(`${URL}/todos/${todo_id}`, {
             headers: {
                 "x-challenger": token}, 
                 data: {
-                    title: 'one two three',
+                    data: createTodo,
                 }
             },
         );
@@ -306,16 +318,17 @@ test.describe("Tests for APIchallenge", () => {
         expect(body.errorMessages[0]).toContain('No such todo entity instance with id');
     });
 
-    test("19 PUT /todos/{id} full (200)", async ( { request } ) => {
-        const todo_id = new BuilderTodo().addValidTodoId();
+    test("19 PUT /todos/{id} full (200) @todos", async ( { request } ) => {
+        const todo_id = new BuilderTodo().validTodoId;
+        const createTodo = new BuilderTodo()
+        .addDoneStatus(true)
+        .addTitle()
+        .addDescription("bla")
+        .generate()
         let response = await request.put(`${URL}/todos/${todo_id}`, {
             headers: {
                 "x-challenger": token}, 
-                data: {
-                    doneStatus: true,
-                    title: 'one two three',
-                    description: 'bla',
-                }
+                data: createTodo,
             },
         );
         let body = await response.json();
@@ -328,14 +341,15 @@ test.describe("Tests for APIchallenge", () => {
         expect(body.description).toBe('bla');
     });
 
-    test("20 PUT /todos/{id} full (200)", async ( { request } ) => {
-        const todo_id = new BuilderTodo().addValidTodoId();
+    test("20 PUT /todos/{id} full (200) @todos", async ( { request } ) => {
+        const todo_id = new BuilderTodo().validTodoId;
+        const createTodo = new BuilderTodo()
+        .addTitle()
+        .generate()
         let response = await request.put(`${URL}/todos/${todo_id}`, {
             headers: {
                 "x-challenger": token}, 
-                data: {
-                    title: 'one two three',
-                }
+                data: createTodo,
             },
         );
         let body = await response.json();
@@ -346,14 +360,15 @@ test.describe("Tests for APIchallenge", () => {
         expect(body.title).toBe('one two three');
     });
 
-    test("21 PUT /todos/{id} no title (400)", async ( { request } ) => {
-        const todo_id = new BuilderTodo().addValidTodoId();
+    test("21 PUT /todos/{id} no title (400) @todos", async ( { request } ) => {
+        const todo_id = new BuilderTodo().validTodoId;
+        const createTodo = new BuilderTodo()
+        .addTitle(null)
+        .generate()
         let response = await request.put(`${URL}/todos/${todo_id}`, {
             headers: {
                 "x-challenger": token}, 
-                data: {
-                    title: null,
-                }
+                data: createTodo,
             },
         );
         let body = await response.json();
@@ -364,9 +379,9 @@ test.describe("Tests for APIchallenge", () => {
         expect(body.errorMessages[0]).toContain('title : field is mandatory');
     });
 
-    test("22 PUT /todos/{id} no amend id (400)", async ( { request } ) => {
-        const todo_id = new BuilderTodo().addValidTodoId();
-        const todo_wrong_id = new BuilderTodo().addInvalidTodoId();
+    test("22 PUT /todos/{id} no amend id (400) @todos", async ( { request } ) => {
+        const todo_id = new BuilderTodo().validTodoId;
+        const todo_wrong_id = new BuilderTodo().invalidTodoId;
         let response = await request.put(`${URL}/todos/${todo_id}`, {
             headers: {
                 "x-challenger": token}, 
@@ -386,8 +401,8 @@ test.describe("Tests for APIchallenge", () => {
         expect(body.errorMessages[0]).toContain('Can not amend id from');
     });
 
-    test("23 DELETE /todos/{id} (200)", async ( { request } ) => {
-        const todo_id = new BuilderTodo().addValidTodoId();
+    test("23 DELETE /todos/{id} (200) @todos", async ( { request } ) => {
+        const todo_id = new BuilderTodo().validTodoId;
         let response = await request.delete(`${URL}/todos/${todo_id}`, {
             headers: {
                 "x-challenger": token}, 
@@ -407,7 +422,7 @@ test.describe("Tests for APIchallenge", () => {
         expect(body.errorMessages[0]).toContain('Could not find an instance with');
     });
 
-    test("24 OPTIONS /todos (200)", async ({ request }) => {
+    test("24 OPTIONS /todos (200) @todos", async ({ request }) => {
     let response = await request.fetch(`${URL}/todos`, {
       method: "OPTIONS",
       headers: {
@@ -425,7 +440,7 @@ test.describe("Tests for APIchallenge", () => {
     expect(headers["allow"]).not.toContain("PATCH");
     });
 
-    test("25 GET /todos (200) XML", async ( { request } ) => {
+    test("25 GET /todos (200) XML @todos", async ( { request } ) => {
         let response = await request.get(`${URL}/todos`, {
             headers: {
                 "x-challenger": token,
@@ -435,14 +450,13 @@ test.describe("Tests for APIchallenge", () => {
         );
 
         let headers = response.headers();
-        let body = response.text();
 
         expect(response.status()).toBe(200);
         expect(headers).toEqual(expect.objectContaining({ "x-challenger": token }));
         expect(headers["content-type"]).toContain("application/xml");
     });
 
-    test("26 GET /todos (200) JSON", async ( { request } ) => {
+    test("26 GET /todos (200) JSON @todos", async ( { request } ) => {
         let response = await request.get(`${URL}/todos`, {
             headers: {
                 "x-challenger": token,
@@ -458,7 +472,7 @@ test.describe("Tests for APIchallenge", () => {
         expect(headers["content-type"]).toContain("application/json");
     });
 
-    test("27 GET /todos (200) ANY", async ( { request } ) => {
+    test("27 GET /todos (200) ANY @todos", async ( { request } ) => {
         let response = await request.get(`${URL}/todos`, {
             headers: {
                 "x-challenger": token,
@@ -474,7 +488,7 @@ test.describe("Tests for APIchallenge", () => {
         expect(headers["content-type"]).toContain("application/json");
     });
 
-    test("28 GET /todos (200) XML pref", async ( { request } ) => {
+    test("28 GET /todos (200) XML pref @todos", async ( { request } ) => {
         let response = await request.get(`${URL}/todos`, {
             headers: {
                 "x-challenger": token,
@@ -490,7 +504,7 @@ test.describe("Tests for APIchallenge", () => {
         expect(headers["content-type"]).toContain("application/xml");
     });
 
-    test("29 GET /todos (200) no accept", async ( { request } ) => {
+    test("29 GET /todos (200) no accept @todos", async ( { request } ) => {
         let response = await request.get(`${URL}/todos`, {
             headers: {
                 "x-challenger": token,
@@ -505,7 +519,7 @@ test.describe("Tests for APIchallenge", () => {
         expect(headers["content-type"]).toContain("application/json");
     });
 
-    test("30 GET /todos (406)", async ( { request } ) => {
+    test("30 GET /todos (406) @todos", async ( { request } ) => {
         let response = await request.get(`${URL}/todos`, {
             headers: {
                 "x-challenger": token,
@@ -521,7 +535,7 @@ test.describe("Tests for APIchallenge", () => {
         expect(headers["content-type"]).toContain("application/json");
     });
 
-    test("31 POST /todos XML", async ( { request } ) => {
+    test("31 POST /todos XML @todos", async ( { request } ) => {
         let response = await request.post(`${URL}/todos`, {
             headers: {
                 "x-challenger": token,
@@ -538,18 +552,19 @@ test.describe("Tests for APIchallenge", () => {
         expect(headers["content-type"]).toContain("application/xml");
     });
 
-    test("32 POST /todos JSON", async ( { request } ) => {
+    test("32 POST /todos JSON @todos", async ( { request } ) => {
+        const createTodo = new BuilderTodo()
+        .addDoneStatus()
+        .addTitle()
+        .addDescription()
+        .generate();
         let response = await request.post(`${URL}/todos`, {
             headers: {
                 "x-challenger": token,
                 "Content-Type": 'application/json',
                 "accept": "application/json",
             },
-            data: {
-                doneStatus: true,
-                title: 'one two three',
-                description: 'bla',
-            }
+            data: createTodo,
             });
 
         let headers = response.headers();
@@ -559,19 +574,20 @@ test.describe("Tests for APIchallenge", () => {
         expect(headers["content-type"]).toContain("application/json");
     });
 
-    test("33 POST /todos (415)", async ( { request } ) => {
+    test("33 POST /todos (415) @todos", async ( { request } ) => {
+        const createTodo = new BuilderTodo()
+        .addDoneStatus()
+        .addTitle()
+        .addDescription()
+        .generate();
         let response = await request.post(`${URL}/todos`, {
             headers: {
                 "x-challenger": token,
                 "Content-Type": 'gzip',
                 "accept": "application/json",
             },
-            data: {
-                doneStatus: true,
-                title: 'one two three',
-                description: 'bla',
-            }
-            });
+            data: createTodo
+        });
 
         let headers = response.headers();
 
@@ -580,18 +596,19 @@ test.describe("Tests for APIchallenge", () => {
         expect(headers["content-type"]).toContain("application/json");
     });
 
-    test("41 DELETE /heartbeat (405)", async ( { request } ) => {
+    test("41 DELETE /heartbeat (405) @heartbeat", async ( { request } ) => {
+        const createTodo = new BuilderTodo()
+        .addDoneStatus()
+        .addTitle()
+        .addDescription()
+        .generate();
         let response = await request.delete(`${URL}/heartbeat`, {
             headers: {
                 "x-challenger": token,
                 "Content-Type": 'application/json',
                 "accept": "application/json",
             },
-            data: {
-                doneStatus: true,
-                title: 'one two three',
-                description: 'bla',
-            }
+            data: createTodo,
             });
 
         let headers = response.headers();
@@ -601,18 +618,19 @@ test.describe("Tests for APIchallenge", () => {
         expect(headers["content-type"]).toContain("application/json");
     });
 
-    test("42 PATCH /heartbeat", async ( { request } ) => {
+    test("42 PATCH /heartbeat @heartbeat", async ( { request } ) => {
+        const createTodo = new BuilderTodo()
+        .addDoneStatus()
+        .addTitle()
+        .addDescription()
+        .generate();
         let response = await request.patch(`${URL}/heartbeat`, {
             headers: {
                 "x-challenger": token,
                 "Content-Type": 'application/json',
                 "accept": "application/json",
             },
-            data: {
-                doneStatus: true,
-                title: 'one two three',
-                description: 'bla',
-            }
+            data: createTodo,
             });
 
         let headers = response.headers();
@@ -622,7 +640,7 @@ test.describe("Tests for APIchallenge", () => {
         expect(headers["content-type"]).toContain("application/json");
     });
 
-    test("58 DELETE /todos/{id} (200) all", async ( { request } ) => {
+    test("58 DELETE /todos/{id} (200) all @todos", async ( { request } ) => {
         let todo_id = 1;
         let response
         while (todo_id <= 10) {
